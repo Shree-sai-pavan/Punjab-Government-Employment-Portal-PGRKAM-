@@ -1,0 +1,956 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - PGRKAM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #1e3a8a;
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+        
+        .applications-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .search-filter input, .search-filter select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: #f8fafc;
+        }
+        
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-reviewed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-accepted {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-action {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-view {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-accept {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .no-applications {
+            text-align: center;
+            padding: 3rem;
+            color: #9ca3af;
+        }
+        
+        .application-detail-modal .modal-content {
+            max-width: 700px;
+        }
+        
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .detail-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .detail-value {
+            color: #666;
+        }
+        
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .admin-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .search-filter input, .search-filter select {
+                width: 100%;
+            }
+            
+            table {
+                font-size: 0.85rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <div>
+                <h1><i class="fas fa-shield-alt"></i> Admin Panel</h1>
+                <p>Manage job applications and user data</p>
+            </div>
+            <button class="logout-btn" onclick="adminLogout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+        
+        <div class="admin-stats">
+            <div class="stat-card">
+                <h3><i class="fas fa-file-alt"></i> Total Applications</h3>
+                <div class="stat-value" id="totalApplications">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-clock"></i> Pending</h3>
+                <div class="stat-value" id="pendingApplications">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-check-circle"></i> Accepted</h3>
+                <div class="stat-value" id="acceptedApplications">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-times-circle"></i> Rejected</h3>
+                <div class="stat-value" id="rejectedApplications">0</div>
+            </div>
+            <div class="stat-card">
+                <h3><i class="fas fa-briefcase"></i> Total Jobs</h3>
+                <div class="stat-value" id="totalJobs">0</div>
+            </div>
+        </div>
+        
+        <!-- Job Management Section -->
+        <div class="applications-table" style="margin-bottom: 2rem;">
+            <div class="table-header">
+                <h2><i class="fas fa-briefcase"></i> Job Management</h2>
+                <div class="search-filter">
+                    <button class="btn btn-primary" onclick="openAddJobModal()">
+                        <i class="fas fa-plus"></i> Add New Job
+                    </button>
+                    <button class="btn btn-secondary" onclick="refreshJobs()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table id="jobsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Job Title</th>
+                            <th>Company</th>
+                            <th>Location</th>
+                            <th>Salary</th>
+                            <th>Type</th>
+                            <th>Posted Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobsBody">
+                        <!-- Jobs will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Job Applications Section -->
+        <div class="applications-table">
+            <div class="table-header">
+                <h2><i class="fas fa-file-alt"></i> Job Applications</h2>
+                <div class="search-filter">
+                    <input type="text" id="searchApplicant" placeholder="Search applicant..." onkeyup="filterApplications()">
+                    <select id="filterStatus" onchange="filterApplications()">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="refreshApplications()">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                </div>
+            </div>
+            
+            <div style="overflow-x: auto;">
+                <table id="applicationsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Applicant Name</th>
+                            <th>Email</th>
+                            <th>Job Title</th>
+                            <th>Company</th>
+                            <th>Applied Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsBody">
+                        <tr>
+                            <td colspan="8" class="no-applications">
+                                <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                                <p>No applications found</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Job Modal -->
+    <div id="jobModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2><i class="fas fa-plus"></i> <span id="jobModalTitle">Add New Job</span></h2>
+            </div>
+            <div class="modal-body">
+                <form id="jobForm">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobTitle" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Job Title *</label>
+                        <input type="text" id="jobTitle" name="jobTitle" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobCompany" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Company *</label>
+                        <input type="text" id="jobCompany" name="jobCompany" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px;">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobLocation" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Location *</label>
+                        <select id="jobLocation" name="jobLocation" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px;">
+                            <option value="">Select Location</option>
+                            <option value="Amritsar">Amritsar</option>
+                            <option value="Ludhiana">Ludhiana</option>
+                            <option value="Jalandhar">Jalandhar</option>
+                            <option value="Patiala">Patiala</option>
+                            <option value="Bathinda">Bathinda</option>
+                            <option value="Mohali">Mohali</option>
+                            <option value="Chandigarh">Chandigarh</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobSalary" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Salary *</label>
+                        <input type="text" id="jobSalary" name="jobSalary" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px;" placeholder="e.g., ₹50,000 - ₹70,000 or ₹5-7 LPA">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobType" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Job Type *</label>
+                        <select id="jobType" name="jobType" required style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px;">
+                            <option value="">Select Type</option>
+                            <option value="Full Time">Full Time</option>
+                            <option value="Part Time">Part Time</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobExperience" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Experience Required</label>
+                        <select id="jobExperience" name="jobExperience" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px;">
+                            <option value="">Any Experience</option>
+                            <option value="fresher">Fresher</option>
+                            <option value="1-3">1-3 Years</option>
+                            <option value="4-6">4-6 Years</option>
+                            <option value="7+">7+ Years</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobSector" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Sector</label>
+                        <select id="jobSector" name="jobSector" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px;">
+                            <option value="general">General</option>
+                            <option value="government">Government</option>
+                            <option value="private">Private</option>
+                            <option value="it">Information Technology</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="education">Education</option>
+                            <option value="manufacturing">Manufacturing</option>
+                            <option value="retail">Retail</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobDescription" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Description *</label>
+                        <textarea id="jobDescription" name="jobDescription" required rows="4" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px; resize: vertical;" placeholder="Describe the job role, responsibilities, and what the candidate will be doing..."></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label for="jobRequirements" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Requirements</label>
+                        <textarea id="jobRequirements" name="jobRequirements" rows="3" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 5px; resize: vertical;" placeholder="List the qualifications, skills, and requirements for this position..."></textarea>
+                    </div>
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" onclick="closeModal('jobModal')" style="padding: 0.5rem 1rem; background: #6b7280; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+                        <button type="submit" style="padding: 0.5rem 1rem; background: #1e3a8a; color: white; border: none; border-radius: 5px; cursor: pointer;">Save Job</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Detail Modal -->
+    <div id="applicationDetailModal" class="modal application-detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-alt"></i> Application Details</h2>
+                <span class="close" onclick="closeModal('applicationDetailModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="applicationDetailContent">
+                <!-- Details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Check admin authentication
+        if (!localStorage.getItem('adminLoggedIn')) {
+            window.location.href = 'admin-login.html';
+        }
+
+        // Load applications and jobs on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadApplications();
+            loadJobs();
+            updateStats();
+        });
+
+        function loadApplications() {
+            const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+            const tbody = document.getElementById('applicationsBody');
+            
+            if (applications.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="no-applications">
+                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <p>No applications found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = applications.map((app, index) => `
+                <tr>
+                    <td>#${app.id || index + 1}</td>
+                    <td>${app.applicantName}</td>
+                    <td>${app.applicantEmail}</td>
+                    <td>${app.jobTitle}</td>
+                    <td>${app.companyTitle}</td>
+                    <td>${app.appliedDate}</td>
+                    <td><span class="status-badge status-${app.status || 'pending'}">${(app.status || 'pending').toUpperCase()}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action btn-view" onclick="viewApplication(${index})">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            ${app.status !== 'accepted' ? `
+                                <button class="btn-action btn-accept" onclick="updateStatus(${index}, 'accepted')">
+                                    <i class="fas fa-check"></i> Accept
+                                </button>
+                            ` : ''}
+                            ${app.status !== 'rejected' ? `
+                                <button class="btn-action btn-reject" onclick="updateStatus(${index}, 'rejected')">
+                                    <i class="fas fa-times"></i> Reject
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewApplication(index) {
+            const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+            const app = applications[index];
+            
+            const detailContent = document.getElementById('applicationDetailContent');
+            detailContent.innerHTML = `
+                <div class="detail-section">
+                    <h3>Personal Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value">${app.applicantName}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Email:</div>
+                        <div class="detail-value">${app.applicantEmail}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Mobile:</div>
+                        <div class="detail-value">${app.applicantMobile}</div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Job Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Job Title:</div>
+                        <div class="detail-value">${app.jobTitle}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Company:</div>
+                        <div class="detail-value">${app.companyTitle}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Applied Date:</div>
+                        <div class="detail-value">${app.appliedDate}</div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Professional Details</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Experience:</div>
+                        <div class="detail-value">${app.applicantExperience || 'N/A'} years</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Current Salary:</div>
+                        <div class="detail-value">${app.currentSalary || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Qualification:</div>
+                        <div class="detail-value">${app.qualification || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Skills:</div>
+                        <div class="detail-value">${app.skills || 'N/A'}</div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Cover Letter</h3>
+                    <p style="color: #666; line-height: 1.6;">${app.coverLetter || 'No cover letter provided'}</p>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Status</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Current Status:</div>
+                        <div class="detail-value">
+                            <span class="status-badge status-${app.status || 'pending'}">${(app.status || 'pending').toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            openModal('applicationDetailModal');
+        }
+
+        function updateStatus(index, status) {
+            const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+            applications[index].status = status;
+            localStorage.setItem('jobApplications', JSON.stringify(applications));
+            
+            showNotification(`Application ${status === 'accepted' ? 'accepted' : 'rejected'} successfully!`, 'success');
+            loadApplications();
+            updateStats();
+        }
+
+        function updateStats() {
+            const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+            
+            document.getElementById('totalApplications').textContent = applications.length;
+            document.getElementById('pendingApplications').textContent = 
+                applications.filter(app => !app.status || app.status === 'pending').length;
+            document.getElementById('acceptedApplications').textContent = 
+                applications.filter(app => app.status === 'accepted').length;
+            document.getElementById('rejectedApplications').textContent = 
+                applications.filter(app => app.status === 'rejected').length;
+        }
+
+        function filterApplications() {
+            const searchTerm = document.getElementById('searchApplicant').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            const applications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+            
+            const filtered = applications.filter(app => {
+                const matchesSearch = app.applicantName.toLowerCase().includes(searchTerm) ||
+                                    app.applicantEmail.toLowerCase().includes(searchTerm) ||
+                                    app.jobTitle.toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || (app.status || 'pending') === statusFilter;
+                return matchesSearch && matchesStatus;
+            });
+            
+            const tbody = document.getElementById('applicationsBody');
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="no-applications">
+                            <i class="fas fa-search" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                            <p>No matching applications found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = filtered.map((app, index) => {
+                const originalIndex = applications.indexOf(app);
+                return `
+                    <tr>
+                        <td>#${app.id || originalIndex + 1}</td>
+                        <td>${app.applicantName}</td>
+                        <td>${app.applicantEmail}</td>
+                        <td>${app.jobTitle}</td>
+                        <td>${app.companyTitle}</td>
+                        <td>${app.appliedDate}</td>
+                        <td><span class="status-badge status-${app.status || 'pending'}">${(app.status || 'pending').toUpperCase()}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-view" onclick="viewApplication(${originalIndex})">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                ${app.status !== 'accepted' ? `
+                                    <button class="btn-action btn-accept" onclick="updateStatus(${originalIndex}, 'accepted')">
+                                        <i class="fas fa-check"></i> Accept
+                                    </button>
+                                ` : ''}
+                                ${app.status !== 'rejected' ? `
+                                    <button class="btn-action btn-reject" onclick="updateStatus(${originalIndex}, 'rejected')">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function refreshApplications() {
+            loadApplications();
+            updateStats();
+            showNotification('Applications refreshed!', 'success');
+        }
+
+        function adminLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('adminLoggedIn');
+                window.location.href = 'admin-login.html';
+            }
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div style="background: ${type === 'success' ? '#10b981' : '#ef4444'}; 
+                           color: white; padding: 1rem; border-radius: 8px; 
+                           position: fixed; top: 20px; right: 20px; z-index: 10000;
+                           box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        // Auto refresh every 30 seconds
+        setInterval(() => {
+            loadApplications();
+            loadJobs();
+            updateStats();
+        }, 30000);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        // Job Management Functions
+function loadJobs() {
+    const jobs = JSON.parse(localStorage.getItem('jobListings') || '[]');
+    const tbody = document.getElementById('jobsBody');
+
+    if (jobs.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="no-applications">
+                    <i class="fas fa-briefcase" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <p>No jobs found</p>
+                </td>
+            </tr>
+        `;
+        // Update total jobs count
+        document.getElementById('totalJobs').textContent = '0';
+        return;
+    }
+
+    tbody.innerHTML = jobs.map((job, index) => `
+        <tr>
+            <td>#${job.id || index + 1}</td>
+            <td>${job.title}</td>
+            <td>${job.company}</td>
+            <td>${job.location}</td>
+            <td>${job.salary}</td>
+            <td>${job.type}</td>
+            <td>${job.postedDate}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-action btn-view" onclick="viewJob(${index})">
+                        <i class="fas fa-eye"></i> View
+                    </button>
+                    <button class="btn-action btn-accept" onclick="editJob(${index})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn-action btn-reject" onclick="deleteJob(${index})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    // Update total jobs count
+    document.getElementById('totalJobs').textContent = jobs.length;
+    
+    // Sync with main site's jobsData
+    syncJobsToMainSite();
+}
+
+// NEW FUNCTION: Sync jobs to main site
+function syncJobsToMainSite() {
+    const jobs = JSON.parse(localStorage.getItem('jobListings') || '[]');
+    // Store in the format expected by the main site
+    localStorage.setItem('jobsData', JSON.stringify(jobs));
+}
+
+function openAddJobModal() {
+    document.getElementById('jobModalTitle').textContent = 'Add New Job';
+    document.getElementById('jobForm').reset();
+    document.getElementById('jobForm').removeAttribute('data-edit-index');
+    openModal('jobModal');
+}
+
+function viewJob(index) {
+    const jobs = JSON.parse(localStorage.getItem('jobListings') || '[]');
+    const job = jobs[index];
+
+    const detailContent = document.getElementById('applicationDetailContent');
+    detailContent.innerHTML = `
+        <div class="detail-section">
+            <h3>Job Information</h3>
+            <div class="detail-row">
+                <div class="detail-label">Title:</div>
+                <div class="detail-value">${job.title}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Company:</div>
+                <div class="detail-value">${job.company}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Location:</div>
+                <div class="detail-value">${job.location}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Salary:</div>
+                <div class="detail-value">${job.salary}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Type:</div>
+                <div class="detail-value">${job.type}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Posted Date:</div>
+                <div class="detail-value">${job.postedDate}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Experience Required:</div>
+                <div class="detail-value">${job.experience || 'Any'}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Sector:</div>
+                <div class="detail-value">${job.sector || 'General'}</div>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h3>Description</h3>
+            <p style="color: #666; line-height: 1.6;">${job.description}</p>
+        </div>
+
+        <div class="detail-section">
+            <h3>Requirements</h3>
+            <p style="color: #666; line-height: 1.6;">${job.requirements || 'No specific requirements listed'}</p>
+        </div>
+    `;
+
+    openModal('applicationDetailModal');
+}
+
+function editJob(index) {
+    const jobs = JSON.parse(localStorage.getItem('jobListings') || '[]');
+    const job = jobs[index];
+
+    document.getElementById('jobModalTitle').textContent = 'Edit Job';
+    document.getElementById('jobTitle').value = job.title;
+    document.getElementById('jobCompany').value = job.company;
+    document.getElementById('jobLocation').value = job.location;
+    document.getElementById('jobSalary').value = job.salary;
+    document.getElementById('jobType').value = job.type;
+    document.getElementById('jobDescription').value = job.description;
+    document.getElementById('jobRequirements').value = job.requirements || '';
+    
+    // Add experience and sector fields if they exist
+    if (document.getElementById('jobExperience')) {
+        document.getElementById('jobExperience').value = job.experience || '';
+    }
+    if (document.getElementById('jobSector')) {
+        document.getElementById('jobSector').value = job.sector || '';
+    }
+
+    document.getElementById('jobForm').setAttribute('data-edit-index', index);
+    openModal('jobModal');
+}
+
+function deleteJob(index) {
+    if (confirm('Are you sure you want to delete this job? All applications for this job will remain but the job listing will be removed.')) {
+        const jobs = JSON.parse(localStorage.getItem('jobListings') || '[]');
+        jobs.splice(index, 1);
+        localStorage.setItem('jobListings', JSON.stringify(jobs));
+        
+        // Sync with main site
+        syncJobsToMainSite();
+        
+        loadJobs();
+        showNotification('Job deleted successfully!', 'success');
+    }
+}
+
+function refreshJobs() {
+    loadJobs();
+    showNotification('Jobs refreshed!', 'success');
+}
+
+// Form submission handler
+document.getElementById('jobForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+    const jobData = {
+        title: formData.get('jobTitle'),
+        company: formData.get('jobCompany'),
+        location: formData.get('jobLocation'),
+        salary: formData.get('jobSalary'),
+        type: formData.get('jobType'),
+        description: formData.get('jobDescription'),
+        requirements: formData.get('jobRequirements'),
+        experience: formData.get('jobExperience') || 'Any',
+        sector: formData.get('jobSector') || 'general',
+        postedDate: new Date().toLocaleDateString()
+    };
+
+    const editIndex = e.target.getAttribute('data-edit-index');
+    const jobs = JSON.parse(localStorage.getItem('jobListings') || '[]');
+
+    if (editIndex !== null && editIndex !== undefined) {
+        // Edit existing job
+        jobs[editIndex] = { ...jobs[editIndex], ...jobData };
+        showNotification('Job updated successfully!', 'success');
+    } else {
+        // Add new job
+        jobData.id = Date.now();
+        jobs.push(jobData);
+        showNotification('Job added successfully!', 'success');
+    }
+
+    localStorage.setItem('jobListings', JSON.stringify(jobs));
+    
+    // Sync with main site
+    syncJobsToMainSite();
+    
+    loadJobs();
+    closeModal('jobModal');
+    e.target.removeAttribute('data-edit-index');
+});
+    </script>
+</body>
+</html>

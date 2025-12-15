@@ -1,0 +1,12 @@
+- [x] Change the header logo icon from "fa-hands-helping" to "fa-user" in capstone-1.html
+- [ ] Modify script.js to load jobsData from localStorage with fallback to hardcoded jobs
+- [ ] Update capstone-1.html to use dynamic jobsData
+- [ ] Add job management UI to admin.html (Add Job button, modal, form)
+- [ ] Add view/edit/delete job functionality in admin panel
+- [ ] Ensure jobs refresh in main page after admin adds them
+- [ ] Test adding a job in admin panel and verify it appears in main page job listings
+- [ ] Test applying for the new job and ensure it works
+- [x] Replace MySQL with MongoDB using Mongoose in server.js
+- [x] Define User schema/model in server.js
+- [x] Update register, login, and logout endpoints to use MongoDB
+- [x] Test user registration, login, and logout with MongoDB
