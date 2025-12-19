@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - PGRKAM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-welcome h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-welcome p {
+            opacity: 0.9;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-left: 4px solid #1e3a8a;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+        
+        .stat-card.pending { border-left-color: #f59e0b; }
+        .stat-card.pending .stat-value { color: #f59e0b; }
+        
+        .stat-card.accepted { border-left-color: #10b981; }
+        .stat-card.accepted .stat-value { color: #10b981; }
+        
+        .stat-card.rejected { border-left-color: #ef4444; }
+        .stat-card.rejected .stat-value { color: #ef4444; }
+        
+        .applications-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-bottom: 2px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .filter-tab:hover {
+            background: #e5e7eb;
+        }
+        
+        .filter-tab.active {
+            background: #1e3a8a;
+            color: white;
+        }
+        
+        .applications-list {
+            padding: 1.5rem;
+        }
+        
+        .application-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #1e3a8a;
+            transition: all 0.3s;
+        }
+        
+        .application-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateX(5px);
+        }
+        
+        .application-card.pending { border-left-color: #f59e0b; }
+        .application-card.accepted { border-left-color: #10b981; }
+        .application-card.rejected { border-left-color: #ef4444; }
+        
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1e3a8a;
+            margin-bottom: 0.3rem;
+        }
+        
+        .app-company {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .app-status {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .app-status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .app-status.accepted {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .app-status.rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .app-status.reviewed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .app-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .app-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .app-detail-item i {
+            color: #1e3a8a;
+        }
+        
+        .app-actions {
+            display: flex;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .btn-view-details {
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-view-details:hover {
+            background: #2563eb;
+        }
+        
+        .btn-withdraw {
+            padding: 0.5rem 1rem;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-withdraw:hover {
+            background: #dc2626;
+        }
+        
+        .no-applications {
+            text-align: center;
+            padding: 3rem;
+            color: #9ca3af;
+        }
+        
+        .no-applications i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .acceptance-notice {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .acceptance-notice i {
+            font-size: 2rem;
+        }
+        
+        .acceptance-notice-content h4 {
+            margin-bottom: 0.3rem;
+        }
+        
+        .acceptance-notice-content p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        /* Modal for application details */
+        .detail-modal .modal-content {
+            max-width: 700px;
+        }
+        
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-section h3 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-row {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .detail-value {
+            color: #666;
+        }
+        
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: #4b5563;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .dashboard-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .app-header {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .app-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div class="dashboard-welcome">
+                <h1><i class="fas fa-user-circle"></i> Welcome, <span id="userName">User</span>!</h1>
+                <p>Track and manage your job applications</p>
+            </div>
+            <div>
+                <a href="index.html" class="back-btn">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </div>
+        
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <h3><i class="fas fa-file-alt"></i> Total Applications</h3>
+                <div class="stat-value" id="totalApps">0</div>
+            </div>
+            <div class="stat-card pending">
+                <h3><i class="fas fa-clock"></i> Pending</h3>
+                <div class="stat-value" id="pendingApps">0</div>
+            </div>
+            <div class="stat-card accepted">
+                <h3><i class="fas fa-check-circle"></i> Accepted</h3>
+                <div class="stat-value" id="acceptedApps">0</div>
+            </div>
+            <div class="stat-card rejected">
+                <h3><i class="fas fa-times-circle"></i> Rejected</h3>
+                <div class="stat-value" id="rejectedApps">0</div>
+            </div>
+        </div>
+        
+        <div class="applications-section">
+            <div class="section-header">
+                <h2><i class="fas fa-briefcase"></i> My Applications</h2>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterApplications('all')">
+                        All (<span id="countAll">0</span>)
+                    </button>
+                    <button class="filter-tab" onclick="filterApplications('pending')">
+                        Pending (<span id="countPending">0</span>)
+                    </button>
+                    <button class="filter-tab" onclick="filterApplications('accepted')">
+                        Accepted (<span id="countAccepted">0</span>)
+                    </button>
+                    <button class="filter-tab" onclick="filterApplications('rejected')">
+                        Rejected (<span id="countRejected">0</span>)
+                    </button>
+                </div>
+            </div>
+            
+            <div class="applications-list" id="applicationsList">
+                <!-- Applications will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Details Modal -->
+    <div id="detailsModal" class="modal detail-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-alt"></i> Application Details</h2>
+                <span class="close" onclick="closeModal('detailsModal')">&times;</span>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <!-- Details will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+        let userApplications = [];
+        
+        // Check if user is logged in
+        const token = localStorage.getItem('token');
+        const userEmail = localStorage.getItem('userEmail');
+        const userName = localStorage.getItem('userName');
+        const userId = localStorage.getItem('userId');
+
+        if (!token || !userEmail) {
+            // Redirect to login if not authenticated
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Get current user info
+        const currentUser = {
+            email: userEmail,
+            name: userName,
+            id: userId
+        };
+
+        document.getElementById('userName').textContent = currentUser.name;
+        
+        // Load applications on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadUserApplications();
+            checkForNewAcceptances();
+        });
+        
+        function loadUserApplications() {
+            // Get all applications from localStorage
+            const allApplications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+            
+            // Filter to show only current user's applications
+            // In a real app, this would be filtered on the server side
+            userApplications = allApplications.filter(app => 
+                app.applicantEmail === currentUser.email
+            );
+            
+            updateStats();
+            displayApplications();
+        }
+        
+        function updateStats() {
+            const total = userApplications.length;
+            const pending = userApplications.filter(app => !app.status || app.status === 'pending').length;
+            const accepted = userApplications.filter(app => app.status === 'accepted').length;
+            const rejected = userApplications.filter(app => app.status === 'rejected').length;
+            
+            document.getElementById('totalApps').textContent = total;
+            document.getElementById('pendingApps').textContent = pending;
+            document.getElementById('acceptedApps').textContent = accepted;
+            document.getElementById('rejectedApps').textContent = rejected;
+            
+            document.getElementById('countAll').textContent = total;
+            document.getElementById('countPending').textContent = pending;
+            document.getElementById('countAccepted').textContent = accepted;
+            document.getElementById('countRejected').textContent = rejected;
+        }
+        
+        function displayApplications() {
+            const container = document.getElementById('applicationsList');
+            
+            let filteredApps = userApplications;
+            if (currentFilter !== 'all') {
+                filteredApps = userApplications.filter(app => 
+                    (app.status || 'pending') === currentFilter
+                );
+            }
+            
+            if (filteredApps.length === 0) {
+                container.innerHTML = `
+                    <div class="no-applications">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Applications Found</h3>
+                        <p>You haven't applied for any jobs yet or no applications match the selected filter.</p>
+                        <a href="index.html#employment" class="btn btn-primary" style="margin-top: 1rem; display: inline-flex;">
+                            <i class="fas fa-search"></i> Browse Jobs
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredApps.map((app, index) => {
+                const status = app.status || 'pending';
+                const isNewAcceptance = app.isNewAcceptance;
+                
+                return `
+                    <div class="application-card ${status}">
+                        <div class="app-header">
+                            <div>
+                                <div class="app-title">${app.jobTitle}</div>
+                                <div class="app-company">${app.companyTitle}</div>
+                            </div>
+                            <span class="app-status ${status}">${status.toUpperCase()}</span>
+                        </div>
+                        
+                        <div class="app-details">
+                            <div class="app-detail-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Applied: ${app.appliedDate}</span>
+                            </div>
+                            <div class="app-detail-item">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Experience: ${app.applicantExperience || 'N/A'} years</span>
+                            </div>
+                            <div class="app-detail-item">
+                                <i class="fas fa-graduation-cap"></i>
+                                <span>${app.qualification || 'N/A'}</span>
+                            </div>
+                        </div>
+                        
+                        ${status === 'accepted' ? `
+                            <div class="acceptance-notice">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="acceptance-notice-content">
+                                    <h4>🎉 Congratulations!</h4>
+                                    <p>Your application has been accepted! The employer will contact you soon via email or phone.</p>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${status === 'rejected' ? `
+                            <div style="background: #fef2f2; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                                <p style="color: #991b1b; margin: 0;">
+                                    <i class="fas fa-info-circle"></i> 
+                                    Your application was not selected at this time. Keep applying to other opportunities!
+                                </p>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="app-actions">
+                            <button class="btn-view-details" onclick="viewApplicationDetails(${userApplications.indexOf(app)})">
+                                <i class="fas fa-eye"></i> View Details
+                            </button>
+                            ${status === 'pending' ? `
+                                <button class="btn-withdraw" onclick="withdrawApplication(${userApplications.indexOf(app)})">
+                                    <i class="fas fa-trash"></i> Withdraw
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function filterApplications(filter) {
+            currentFilter = filter;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            displayApplications();
+        }
+        
+        function viewApplicationDetails(index) {
+            const app = userApplications[index];
+            const status = app.status || 'pending';
+            
+            const detailsContent = document.getElementById('detailsContent');
+            detailsContent.innerHTML = `
+                <div class="detail-section">
+                    <h3><i class="fas fa-briefcase"></i> Job Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Job Title:</div>
+                        <div class="detail-value">${app.jobTitle}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Company:</div>
+                        <div class="detail-value">${app.companyTitle}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Applied Date:</div>
+                        <div class="detail-value">${app.appliedDate}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Status:</div>
+                        <div class="detail-value">
+                            <span class="app-status ${status}">${status.toUpperCase()}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3><i class="fas fa-user"></i> Your Information</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Name:</div>
+                        <div class="detail-value">${app.applicantName}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Email:</div>
+                        <div class="detail-value">${app.applicantEmail}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Mobile:</div>
+                        <div class="detail-value">${app.applicantMobile}</div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3><i class="fas fa-briefcase"></i> Professional Details</h3>
+                    <div class="detail-row">
+                        <div class="detail-label">Experience:</div>
+                        <div class="detail-value">${app.applicantExperience || 'N/A'} years</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Qualification:</div>
+                        <div class="detail-value">${app.qualification || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Current Salary:</div>
+                        <div class="detail-value">${app.currentSalary || 'N/A'}</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">Skills:</div>
+                        <div class="detail-value">${app.skills || 'N/A'}</div>
+                    </div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3><i class="fas fa-file-alt"></i> Cover Letter</h3>
+                    <p style="color: #666; line-height: 1.6; padding: 1rem; background: #f8fafc; border-radius: 8px;">
+                        ${app.coverLetter || 'No cover letter provided'}
+                    </p>
+                </div>
+            `;
+            
+            openModal('detailsModal');
+        }
+        
+        function withdrawApplication(index) {
+            if (confirm('Are you sure you want to withdraw this application? This action cannot be undone.')) {
+                const app = userApplications[index];
+                
+                // Find in all applications and remove
+                const allApplications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+                const globalIndex = allApplications.findIndex(a => 
+                    a.id === app.id && a.applicantEmail === app.applicantEmail
+                );
+                
+                if (globalIndex !== -1) {
+                    allApplications.splice(globalIndex, 1);
+                    localStorage.setItem('jobApplications', JSON.stringify(allApplications));
+                    
+                    showNotification('Application withdrawn successfully', 'success');
+                    loadUserApplications();
+                }
+            }
+        }
+        
+        function checkForNewAcceptances() {
+            // Check if there are any newly accepted applications
+            const newAcceptances = userApplications.filter(app => 
+                app.status === 'accepted' && !app.notificationShown
+            );
+            
+            if (newAcceptances.length > 0) {
+                // Mark as shown
+                const allApplications = JSON.parse(localStorage.getItem('jobApplications') || '[]');
+                newAcceptances.forEach(newApp => {
+                    const app = allApplications.find(a => 
+                        a.id === newApp.id && a.applicantEmail === newApp.applicantEmail
+                    );
+                    if (app) {
+                        app.notificationShown = true;
+                    }
+                });
+                localStorage.setItem('jobApplications', JSON.stringify(allApplications));
+                
+                // Show notification
+                showNotification(
+                    `🎉 Congratulations! You have ${newAcceptances.length} new job acceptance(s)!`,
+                    'success',
+                    10000
+                );
+            }
+        }
+        
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'block';
+                modal.classList.add('show');
+            }
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        function showNotification(message, type = 'success', duration = 4000) {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <div style="background: ${type === 'success' ? '#10b981' : '#ef4444'}; 
+                           color: white; padding: 1rem; border-radius: 8px; 
+                           position: fixed; top: 20px; right: 20px; z-index: 10000;
+                           box-shadow: 0 4px 12px rgba(0,0,0,0.15); animation: slideInRight 0.3s ease;
+                           max-width: 400px;">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, duration);
+        }
+        
+        // Auto refresh every 30 seconds to check for status updates
+        setInterval(() => {
+            const currentLength = userApplications.length;
+            const currentAccepted = userApplications.filter(app => app.status === 'accepted').length;
+            
+            loadUserApplications();
+            
+            const newAccepted = userApplications.filter(app => app.status === 'accepted').length;
+            
+            // Check if new acceptances came in
+            if (newAccepted > currentAccepted) {
+                checkForNewAcceptances();
+            }
+        }, 30000);
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modals = document.getElementsByClassName('modal');
+            for (let modal of modals) {
+                if (event.target === modal) {
+                    closeModal(modal.id);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
